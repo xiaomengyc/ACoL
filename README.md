@@ -1,4 +1,18 @@
-# ACoL-pytorch
+# [Adversarial Complementary Learning for Weakly Supervised Object Localization](http://openaccess.thecvf.com/content_cvpr_2018/papers/Zhang_Adversarial_Complementary_Learning_CVPR_2018_paper.pdf)
+
+## Revisiting [CAM](http://cnnlocalization.csail.mit.edu/Zhou_Learning_Deep_Features_CVPR_2016_paper.pdf)
+We prove the CAM method can be simplified to enable end-to-end training. The proof refers to [Section 3.1](http://openaccess.thecvf.com/content_cvpr_2018/papers/Zhang_Adversarial_Complementary_Learning_CVPR_2018_paper.pdf).
+![](figs/revisiting_cam.png)
+
+## The proposed ACoL method
+We apply two classifiers to discover complementary regions of target objects.
+![](figs/frame.png)
+
+## Localization
+![](figs/bbox_show.png)
+
+## Effect of mining complementary regions
+![](figs/effect.png)
 
 ## Prerequisites
 - Python2.7
