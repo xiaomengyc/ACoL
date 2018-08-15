@@ -40,7 +40,7 @@ def get_arguments():
     parser = argparse.ArgumentParser(description='ACoL')
     parser.add_argument("--root_dir", type=str, default=ROOT_DIR,
                         help='Root dir for the project')
-    parser.add_argument("--img_dir", type=str, default=IMG_DIR,
+    parser.add_argument("--img_dir", type=str, default='',
                         help='Directory of training images')
     parser.add_argument("--train_list", type=str,
                         default=train_list)

@@ -33,7 +33,8 @@ class dataset(Dataset):
         return len(self.image_list)
 
     def __getitem__(self, idx):
-        img_name = os.path.join(self.root_dir, self.image_list[idx])
+        #img_name = os.path.join(self.root_dir, self.image_list[idx])
+        img_name =  self.image_list[idx]
         image = Image.open(img_name).convert('RGB')
 
         if self.transform is not None:
