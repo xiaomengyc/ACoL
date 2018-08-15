@@ -28,8 +28,8 @@ print 'Project Root Dir:',ROOT_DIR
 IMG_DIR=os.path.join(ROOT_DIR,'data','ILSVRC','Data','CLS-LOC','train')
 SNAPSHOT_DIR=os.path.join(ROOT_DIR,'snapshot_bins')
 
-train_list = os.path.join(ROOT_DIR,'datalist','train_list.txt')
-test_list = os.path.join(ROOT_DIR,'datalist','val_list.txt')
+train_list = os.path.join(ROOT_DIR,'datalist', 'ILSVRC', 'train_list.txt')
+test_list = os.path.join(ROOT_DIR,'datalist','ILSVRC', 'val_list.txt')
 
 # Default parameters
 LR = 0.001
