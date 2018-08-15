@@ -14,7 +14,6 @@ from torch.utils.data import DataLoader
 import shutil
 import collections
 from torch.optim import SGD
-# from my_optim import get_optimizer, adject_lr
 import my_optim
 import torch.nn.functional as F
 from models import *
@@ -26,42 +25,33 @@ from utils.save_atten import SAVE_ATTEN
 from utils.LoadData import data_loader2, data_loader
 from utils.Restore import restore
 
-ROOT_DIR = '/home/zhangxiaolin/xlzhang/eccv18'
-if os.uname()[1] == 'UTS-15':
-    ROOT_DIR = '/home/zhangxiaolin/xlzhang/eccv18'
-elif os.uname()[1] == 'UTS3':
-    ROOT_DIR = '/home/xiaolin/eccv18'
-elif os.uname()[1] == 'UTS2':
-    ROOT_DIR = '/home/xiaolin/xlzhang/eccv18'
+ROOT_DIR = '/'.join(os.getcwd().split('/')[:-1])
+print 'Project Root Dir:',ROOT_DIR
 
-SNAPSHOT_DIR = os.path.join(ROOT_DIR, 'snapshots', 'snapshot_bins')
+IMG_DIR=os.path.join(ROOT_DIR,'data','ILSVRC','Data','CLS-LOC','train')
+SNAPSHOT_DIR=os.path.join(ROOT_DIR,'snapshot_bins')
 
-IMG_DIR = os.path.join('/dev/shm/', 'IMAGENET_VOC_3W/imagenet_simple')
-train_list = os.path.join(ROOT_DIR, 'data', 'IMAGENET_VOC_3W', 'list', 'train.txt')
-# test_list = os.path.join(ROOT_DIR, 'data', 'IMAGENET_VOC_3W', 'list', 'test.txt')
-test_list = os.path.join(ROOT_DIR, 'data', 'IMAGENET_VOC_3W', 'list', 'train.txt')
+train_list = os.path.join(ROOT_DIR,'datalist','train_list.txt')
+test_list = os.path.join(ROOT_DIR,'datalist','val_list.txt')
 
-# IMG_DIR = os.path.join('/dev/shm/', 'VOC2012')
-# train_list = os.path.join(ROOT_DIR, 'data', 'VOC2012', 'list', 'train_softmax.txt')
-# test_list = os.path.join(ROOT_DIR, 'data', 'VOC2012', 'list', 'val_softmax.txt')
 
 LR = 0.001
 # LR=0.1
 EPOCH = 200
 DISP_INTERVAL = 50
 def get_arguments():
-    parser = argparse.ArgumentParser(description='ECCV')
+    parser = argparse.ArgumentParser(description='ACoL')
     parser.add_argument("--root_dir", type=str, default=ROOT_DIR)
     parser.add_argument("--img_dir", type=str, default=IMG_DIR)
     parser.add_argument("--train_list", type=str, default=train_list)
     parser.add_argument("--test_list", type=str, default=test_list)
     parser.add_argument("--batch_size", type=int, default=1)
-    parser.add_argument("--input_size", type=int, default=356)
-    parser.add_argument("--crop_size", type=int, default=321)
+    parser.add_argument("--input_size", type=int, default=256)
+    parser.add_argument("--crop_size", type=int, default=224)
     parser.add_argument("--dataset", type=str, default='imagenet')
     parser.add_argument("--num_classes", type=int, default=20)
-    parser.add_argument("--arch", type=str,default='vgg_v0')
-    parser.add_argument("--threshold", type=float, default=0.5)
+    parser.add_argument("--arch", type=str,default='vgg_v1')
+    parser.add_argument("--threshold", type=float, default=0.6)
     parser.add_argument("--lr", type=float, default=LR)
     parser.add_argument("--decay_points", type=str, default='none')
     parser.add_argument("--epoch", type=int, default=EPOCH)
@@ -135,16 +125,10 @@ def val(args, model=None, current_epoch=0):
             logits0 = logits0.view(bs, ncrops, -1).mean(1)
 
 
-        # Calculate classification results
-        if args.onehot=='True':
-            val_mAP, prob, gt = cal_mAP(logits0, label_var, prob, gt)
-            # print val_mAP
-
-        else:
-            prec1_1, prec5_1 = Metrics.accuracy(logits0.cpu().data, label_in.long(), topk=(1,5))
-            # prec3_1, prec5_1 = Metrics.accuracy(logits[1].data, label.long(), topk=(1,5))
-            top1.update(prec1_1[0], img.size()[0])
-            top5.update(prec5_1[0], img.size()[0])
+        prec1_1, prec5_1 = Metrics.accuracy(logits0.cpu().data, label_in.long(), topk=(1,5))
+        # prec3_1, prec5_1 = Metrics.accuracy(logits[1].data, label.long(), topk=(1,5))
+        top1.update(prec1_1[0], img.size()[0])
+        top5.update(prec5_1[0], img.size()[0])
 
         # model.module.save_erased_img(img_path)
         last_featmaps = model.module.get_localization_maps()
@@ -176,24 +160,6 @@ def val(args, model=None, current_epoch=0):
     # save_name = os.path.join(args.snapshot_dir, 'val_result.txt')
     # with open(save_name, 'a') as f:
     #     f.write('%.3f'%out)
-
-def cal_mAP(logits0, label_var, prob, gt):
-    assert logits0.size() == label_var.size()
-
-    res = torch.sigmoid(logits0)
-    # res = torch.squeeze(res)
-    res = res.cpu().data.numpy()
-    gt_np = label_var.cpu().data.numpy()
-
-    if prob is None:
-        prob = res
-        gt = gt_np
-    else:
-        prob = np.r_[prob, res]
-        gt = np.r_[gt, gt_np]
-
-    cls_mAP = Metrics.get_mAP(gt, prob)
-    return cls_mAP, prob, gt
 
 
 if __name__ == '__main__':
