@@ -28,6 +28,8 @@ We apply two classifiers to discover complementary regions of target objects.
 git clone https://github.com/xiaomengyc/ACoL.git
 cd ACoL
 mkdir snapshots
+cd scripts
+bash train_vgg_imagenet.sh
 ```
 
 ### Citation
