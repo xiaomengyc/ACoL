@@ -21,9 +21,14 @@ We apply two classifiers to discover complementary regions of target objects.
 
 ## Data Preparation
 
-- Create $data$ directory using `mkdir data`
-- Download datasets and save them to $data$
-- Place every $list$ document under the corresponding dataset. 
+- Download the ILSVRC dataset and save them to $data$
+
+## Train
+```
+git clone https://github.com/xiaomengyc/ACoL.git
+cd ACoL
+mkdir snapshots
+```
 
 ### Citation
 If you find this code helpful, please consider to cite this paper:
