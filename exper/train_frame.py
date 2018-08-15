@@ -20,26 +20,16 @@ from utils import AverageMeter
 from utils import Metrics
 from utils.LoadData import data_loader, data_loader2
 from utils.Restore import restore
-from utils.tensorboard import writer
-
-# if os.uname()[1] == 'UTS-15':
-#     ROOT_DIR = '/home/zhangxiaolin/xlzhang/eccv18'
-# elif os.uname()[1] == 'UTS3':
-#     ROOT_DIR = '/home/xiaolin/eccv18'
-# elif os.uname()[1] == 'UTS2':
-#     ROOT_DIR = '/home/xiaolin/xlzhang/eccv18'
-
-ROOT_DIR = ''.join(os.getcwd().split('/')[:-1])
-print ROOT_DIR
 
 
-#SNAPSHOT_DIR = os.path.join(ROOT_DIR, 'snapshots', 'snapshot_bins')
-# IMG_DIR = os.path.join(ROOT_DIR, 'data', 'IMAGENET_VOC_3W', 'imagenet_simple')
+ROOT_DIR = '/'.join(os.getcwd().split('/')[:-1])
+print 'Project Root Dir:',ROOT_DIR
 
-# IMG_DIR = os.path.join('/dev/shm/', 'IMAGENET_VOC_3W/imagenet_simple')
-# train_list = os.path.join(ROOT_DIR, 'data', 'IMAGENET_VOC_3W', 'list', 'train.txt')
-# test_list = os.path.join(ROOT_DIR, 'data', 'IMAGENET_VOC_3W', 'list', 'test.txt')
+IMG_DIR=os.path.join(ROOT_DIR,'data','ILSVRC','Data','CLS-LOC','train')
+SNAPSHOT_DIR=os.path.join(ROOT_DIR,'snapshot_bins')
 
+train_list = os.path.join(ROOT_DIR,'datalist','train_list.txt')
+test_list = os.path.join(ROOT_DIR,'datalist','val_list.txt')
 
 # Default parameters
 LR = 0.001
@@ -57,8 +47,8 @@ def get_arguments():
     parser.add_argument("--test_list", type=str,
                         default=test_list)
     parser.add_argument("--batch_size", type=int, default=20)
-    parser.add_argument("--input_size", type=int, default=356)
-    parser.add_argument("--crop_size", type=int, default=321)
+    parser.add_argument("--input_size", type=int, default=256)
+    parser.add_argument("--crop_size", type=int, default=224)
     parser.add_argument("--dataset", type=str, default='imagenet')
     parser.add_argument("--num_classes", type=int, default=20)
     parser.add_argument("--threshold", type=float, default=0.6)
@@ -68,11 +58,11 @@ def get_arguments():
     parser.add_argument("--epoch", type=int, default=EPOCH)
     parser.add_argument("--num_gpu", type=int, default=2)
     parser.add_argument("--num_workers", type=int, default=20)
-    parser.add_argument("--disp_interval", type=int, default=DISP_INTERVAL)
+    parser.add_argument("--disp_interval", type=int, default=100)
     parser.add_argument("--snapshot_dir", type=str, default=SNAPSHOT_DIR)
     parser.add_argument("--resume", type=str, default='True')
     parser.add_argument("--tencrop", type=str, default='False')
-    parser.add_argument("--onehot", type=str, default='True')
+    parser.add_argument("--onehot", type=str, default='False')
     parser.add_argument("--restore_from", type=str, default='')
     parser.add_argument("--global_counter", type=int, default=0)
     parser.add_argument("--current_epoch", type=int, default=0)
@@ -144,7 +134,6 @@ def train(args):
 
             logits = model(img_var,  label_var)
             loss_val, = model.module.get_loss(logits, label_var)
-            writer.add_scalar('loss_cls', loss_val, global_counter)
 
             optimizer.zero_grad()
             loss_val.backward()

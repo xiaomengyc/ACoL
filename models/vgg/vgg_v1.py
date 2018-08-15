@@ -40,10 +40,7 @@ class VGG(nn.Module):
         self.threshold = threshold
 
         #Optimizer
-        if args is not None and args.onehot=='True':
-            self.loss_cross_entropy = nn.BCEWithLogitsLoss()
-        else:
-            self.loss_cross_entropy = nn.CrossEntropyLoss()
+        self.loss_cross_entropy = nn.CrossEntropyLoss()
 
     def classifier(self, in_planes, out_planes):
         return nn.Sequential(
@@ -72,10 +69,7 @@ class VGG(nn.Module):
 
         # erase feature maps
 
-        if self.onehot == 'True':
-            localization_map_normed = self.get_atten_map_ml(out, label)
-        else:
-            localization_map_normed = self.get_atten_map(out, label, True)
+        localization_map_normed = self.get_atten_map(out, label, True)
         self.attention = localization_map_normed
         feat_erase = self.erase_feature_maps(localization_map_normed, feat, self.threshold)
 
@@ -197,26 +191,6 @@ class VGG(nn.Module):
 
         return atten_map
 
-    def get_atten_map_ml(self, feature_maps, gt_labels):
-        label = gt_labels # multilabel
-
-        feature_map_size = feature_maps.size()
-        batch_size = feature_map_size[0]
-
-        atten_map = torch.zeros([feature_map_size[0], feature_map_size[2], feature_map_size[3]])
-        atten_map = Variable(atten_map.cuda())
-        for batch_idx in range(batch_size):
-            cur_label = label[batch_idx,:]
-            cur_label = torch.unsqueeze(torch.unsqueeze(cur_label, dim=1), dim=1)
-
-            chosen_maps = feature_maps[batch_idx, :,:,:]
-            chosen_maps = self.normalize_atten_maps(chosen_maps)
-            chosen_maps = chosen_maps * cur_label
-
-            fuse_map, _ = torch.max(chosen_maps, dim=0)
-            atten_map[batch_idx,:,:] = torch.squeeze(fuse_map)
-
-        return atten_map
 
     def _initialize_weights(self):
         for m in self.modules():
